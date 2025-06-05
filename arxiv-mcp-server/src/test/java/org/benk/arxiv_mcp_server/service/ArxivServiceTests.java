@@ -24,13 +24,13 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-class ArxivServiceImplTests {
+class ArxivServiceTests {
 
     @Mock
     private ArxivClient arxivClient;
 
     @InjectMocks
-    private ArxivServiceImpl arxivService;
+    private ArxivService arxivService;
     private AutoCloseable mocks;
 
     @BeforeEach
