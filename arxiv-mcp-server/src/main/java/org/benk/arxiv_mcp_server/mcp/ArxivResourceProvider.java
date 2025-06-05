@@ -1,17 +1,14 @@
 package org.benk.arxiv_mcp_server.mcp;
 
 import com.logaritex.mcp.annotation.McpResource;
-import io.modelcontextprotocol.server.McpSyncServerExchange;
-import io.modelcontextprotocol.spec.McpSchema;
 import io.modelcontextprotocol.spec.McpSchema.ReadResourceRequest;
 import io.modelcontextprotocol.spec.McpSchema.ReadResourceResult;
-import io.modelcontextprotocol.spec.McpSchema.ResourceContents;
 import io.modelcontextprotocol.spec.McpSchema.TextResourceContents;
 import lombok.RequiredArgsConstructor;
+import org.benk.arxiv_mcp_server.model.PaperInfo;
 import org.benk.arxiv_mcp_server.service.ArxivService;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,173 +18,71 @@ public class ArxivResourceProvider {
 
     private final ArxivService arxivService;
 
-    private final Map<String, Map<String, String>> userProfiles = new HashMap<>();
-
-//    public ArxivResourceProvider() {
-        // Initialize with some sample data
-//        Map<String, String> johnProfile = new HashMap<>();
-//        johnProfile.put("name", "John Smith");
-//        johnProfile.put("email", "john.smith@example.com");
-//        johnProfile.put("age", "32");
-//        johnProfile.put("location", "New York");
-//
-//        Map<String, String> janeProfile = new HashMap<>();
-//        janeProfile.put("name", "Jane Doe");
-//        janeProfile.put("email", "jane.doe@example.com");
-//        janeProfile.put("age", "28");
-//        janeProfile.put("location", "London");
-//
-//        Map<String, String> bobProfile = new HashMap<>();
-//        bobProfile.put("name", "Bob Johnson");
-//        bobProfile.put("email", "bob.johnson@example.com");
-//        bobProfile.put("age", "45");
-//        bobProfile.put("location", "Tokyo");
-//
-//        Map<String, String> aliceProfile = new HashMap<>();
-//        aliceProfile.put("name", "Alice Brown");
-//        aliceProfile.put("email", "alice.brown@example.com");
-//        aliceProfile.put("age", "36");
-//        aliceProfile.put("location", "Sydney");
-//
-//        userProfiles.put("john", johnProfile);
-//        userProfiles.put("jane", janeProfile);
-//        userProfiles.put("bob", bobProfile);
-//        userProfiles.put("alice", aliceProfile);
-//    }
-
     /**
-     * Resource method that takes a ReadResourceRequest parameter and URI variable.
+     *  List all available topic folders in the papers directory.
+     *  This resource provides a simple list of all available topic folders.
      */
-    @McpResource(uri = "user-profile://{username}", name = "User Profile", description = "Provides user profile information for a specific user")
-    public ReadResourceResult getUserProfile(ReadResourceRequest request, String username) {
-        String profileInfo = formatProfileInfo(userProfiles.getOrDefault(username.toLowerCase(), new HashMap<>()));
+    @McpResource(uri = "papers://folders", name = "Papers Folders", description = "Returns a list of folders containing papers")
+    public ReadResourceResult listPapersFolders(ReadResourceRequest request) {
+        // Get the list of topic folders from the arXiv service
+        var folders = arxivService.getAvailableFolders();
 
-        return new ReadResourceResult(List.of(new TextResourceContents(request.uri(), "text/plain", profileInfo)));
-    }
-
-    /**
-     * Resource method that takes URI variables directly as parameters. The URI
-     * template in the annotation defines the variables that will be extracted.
-     */
-    @McpResource(uri = "user-profile://{username}", name = "User Details", description = "Provides user details for a specific user using URI variables")
-    public ReadResourceResult getUserDetails(String username) {
-        String profileInfo = formatProfileInfo(userProfiles.getOrDefault(username.toLowerCase(), new HashMap<>()));
-
-        return new ReadResourceResult(
-                List.of(new TextResourceContents("user-profile://" + username, "text/plain", profileInfo)));
-    }
-
-    /**
-     * Resource method that takes multiple URI variables as parameters.
-     */
-    @McpResource(uri = "user-attribute://{username}/{attribute}", name = "User Attribute", description = "Provides a specific attribute from a user's profile")
-    public ReadResourceResult getUserAttribute(String username, String attribute) {
-        Map<String, String> profile = userProfiles.getOrDefault(username.toLowerCase(), new HashMap<>());
-        String attributeValue = profile.getOrDefault(attribute, "Attribute not found");
-
-        return new ReadResourceResult(
-                List.of(new TextResourceContents("user-attribute://" + username + "/" + attribute, "text/plain",
-                        username + "'s " + attribute + ": " + attributeValue)));
-    }
-
-    /**
-     * Resource method that takes an exchange and URI variables.
-     */
-    @McpResource(uri = "user-profile-exchange://{username}", name = "User Profile with Exchange", description = "Provides user profile information with server exchange context")
-    public ReadResourceResult getProfileWithExchange(McpSyncServerExchange exchange, String username) {
-        String profileInfo = formatProfileInfo(userProfiles.getOrDefault(username.toLowerCase(), new HashMap<>()));
-
-        return new ReadResourceResult(List.of(new TextResourceContents("user-profile-exchange://" + username,
-                "text/plain", "Profile with exchange for " + username + ": " + profileInfo)));
-    }
-
-    /**
-     * Resource method that takes a String URI variable parameter.
-     */
-    @McpResource(uri = "user-connections://{username}", name = "User Connections", description = "Provides a list of connections for a specific user")
-    public List<String> getUserConnections(String username) {
-        // Generate a simple list of connections based on username
-        return List.of(username + " is connected with Alice", username + " is connected with Bob",
-                username + " is connected with Charlie");
-    }
-
-    /**
-     * Resource method that takes both McpSyncServerExchange, ReadResourceRequest
-     * and
-     * URI variable parameters.
-     */
-    @McpResource(uri = "user-notifications://{username}", name = "User Notifications", description = "Provides notifications for a specific user")
-    public List<ResourceContents> getUserNotifications(McpSyncServerExchange exchange, ReadResourceRequest request,
-                                                       String username) {
-        // Generate notifications based on username
-        String notifications = generateNotifications(username);
-
-        return List.of(new TextResourceContents(request.uri(), "text/plain", notifications));
-    }
-
-    /**
-     * Resource method that returns a single ResourceContents with TEXT content
-     * type.
-     */
-    @McpResource(uri = "user-status://{username}", name = "User Status", description = "Provides the current status for a specific user")
-    public ResourceContents getUserStatus(ReadResourceRequest request, String username) {
-        // Generate a simple status based on username
-        String status = generateUserStatus(username);
-
-        return new TextResourceContents(request.uri(), "text/plain", status);
-    }
-
-    /**
-     * Resource method that returns a single String with TEXT content type.
-     */
-    @McpResource(uri = "user-location://{username}", name = "User Location", description = "Provides the current location for a specific user")
-    public String getUserLocation(String username) {
-        Map<String, String> profile = userProfiles.getOrDefault(username.toLowerCase(), new HashMap<>());
-
-        // Extract location from profile data
-        return profile.getOrDefault("location", "Location not available");
-    }
-
-    /**
-     * Resource method that returns a single String with BLOB content type. This
-     * demonstrates how a String can be treated as binary data.
-     */
-    @McpResource(uri = "user-avatar://{username}", name = "User Avatar", description = "Provides a base64-encoded avatar image for a specific user", mimeType = "image/png")
-    public String getUserAvatar(ReadResourceRequest request, String username) {
-        // In a real implementation, this would be a base64-encoded image
-        // For this example, we're just returning a placeholder string
-        return "base64-encoded-avatar-image-for-" + username;
-    }
-
-    private String formatProfileInfo(Map<String, String> profile) {
-        if (profile.isEmpty()) {
-            return "User profile not found";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> entry : profile.entrySet()) {
-            sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
-        }
-        return sb.toString().trim();
-    }
-
-    private String generateNotifications(String username) {
-        // Simple logic to generate notifications
-        return "You have 3 new messages\n" + "2 people viewed your profile\n" + "You have 1 new connection request";
-    }
-
-    private String generateUserStatus(String username) {
-        // Simple logic to generate a status
-        if (username.equals("john")) {
-            return "🟢 Online";
-        } else if (username.equals("jane")) {
-            return "🟠 Away";
-        } else if (username.equals("bob")) {
-            return "⚪ Offline";
-        } else if (username.equals("alice")) {
-            return "🔴 Busy";
+        // Create a simple markdown list
+        StringBuilder content = new StringBuilder("# Available Topics\n\n");
+        if (folders != null && !folders.isEmpty()) {
+            for (String folder : folders) {
+                content.append("- ").append(folder).append("\n");
+            }
+            content.append("\nUse @<folder> to access papers in that topic.\n");
         } else {
-            return "⚪ Offline";
+            content.append("No topics found.\n");
+        }
+        return new ReadResourceResult(List.of(new TextResourceContents(request.uri(), "text/plain", content.toString())));
+    }
+
+
+    /**
+     *     Get detailed information about papers on a specific topic.
+     *     Args:
+     *         topic: The research topic to retrieve papers for
+     */
+    @McpResource(uri = "papers://{topic}", name = "Papers by Topic", description = "Returns a list of papers for a specific topic")
+    public ReadResourceResult getTopicPapers(String topic) {
+        var papers = arxivService.getTopicPapers(topic);
+
+        try {
+            // Load papers data from the arXiv service (simulate reading from file)
+            StringBuilder content = new StringBuilder("# Papers on ")
+                    .append(topic.replace("_", " ").substring(0, 1).toUpperCase())
+                    .append(topic.replace("_", " ").substring(1))
+                    .append("\n\n");
+
+            content.append("Total papers: ").append(papers.size()).append("\n\n");
+
+            for (Map.Entry<String, PaperInfo> entry : papers.entrySet()) {
+                String paperId = entry.getKey();
+                PaperInfo paperInfo = entry.getValue();
+
+                content.append("## ").append(paperInfo.getTitle()).append("\n");
+                content.append("- **Paper ID**: ").append(paperId).append("\n");
+                content.append("- **Authors**: ").append(String.join(", ", paperInfo.getAuthors())).append("\n");
+                content.append("- **Published**: ").append(paperInfo.getPublished()).append("\n");
+                content.append("- **PDF URL**: [").append(paperInfo.getPdfUrl()).append("](").append(paperInfo.getPdfUrl()).append(")\n\n");
+                content.append("### Summary\n")
+                        .append(paperInfo.getSummary().length() > 500
+                                ? paperInfo.getSummary().substring(0, 500) + "..."
+                                : paperInfo.getSummary())
+                        .append("\n\n---\n\n");
+            }
+
+            return new ReadResourceResult(List.of(
+                    new TextResourceContents("papers://" + topic, "text/plain", content.toString())
+            ));
+        } catch (Exception e) {
+            String errorMsg = "# Error reading papers data for " + topic + "\n\nThe papers data is corrupted or unavailable.";
+            return new ReadResourceResult(List.of(
+                    new TextResourceContents("papers://" + topic, "text/plain", errorMsg)
+            ));
         }
     }
 }

@@ -34,52 +34,52 @@ public class AutocompleteProvider {
         countryDatabase.put("u", List.of("Uganda", "Ukraine", "United Kingdom", "United States"));
     }
 
-    /**
-     * Complete method for usernames in a user status prompt.
-     */
-    @McpComplete(uri = "user-status://{username}")
-    public List<String> completeUsername(String usernamePrefix) {
-        String prefix = usernamePrefix.toLowerCase();
-        if (prefix.isEmpty()) {
-            return List.of("Enter a username");
-        }
-
-        String firstLetter = prefix.substring(0, 1);
-        List<String> usernames = usernameDatabase.getOrDefault(firstLetter, List.of());
-
-        return usernames.stream().filter(username -> username.toLowerCase().startsWith(prefix)).toList();
-    }
-
-    @McpComplete(prompt = "personalized-message")
-    public List<String> completeName(String name) {
-        String prefix = name.toLowerCase();
-        if (prefix.isEmpty()) {
-            return List.of("Enter a username");
-        }
-
-        String firstLetter = prefix.substring(0, 1);
-        List<String> usernames = usernameDatabase.getOrDefault(firstLetter, List.of());
-
-        return usernames.stream().filter(username -> username.toLowerCase().startsWith(prefix)).toList();
-    }
-
-    /**
-     * Complete method for country names in a travel prompt.
-     */
-    @McpComplete(prompt = "travel-planner")
-    public CompleteResult completeCountryName(CompleteRequest request) {
-        String prefix = request.argument().value().toLowerCase();
-        if (prefix.isEmpty()) {
-            return new CompleteResult(new CompleteCompletion(List.of("Enter a country name"), 1, false));
-        }
-
-        String firstLetter = prefix.substring(0, 1);
-        List<String> countries = countryDatabase.getOrDefault(firstLetter, List.of());
-
-        List<String> matches = countries.stream()
-                .filter(country -> country.toLowerCase().startsWith(prefix))
-                .toList();
-
-        return new CompleteResult(new CompleteCompletion(matches, matches.size(), false));
-    }
+//    /**
+//     * Complete method for usernames in a user status prompt.
+//     */
+//    @McpComplete(uri = "user-status://{username}")
+//    public List<String> completeUsername(String usernamePrefix) {
+//        String prefix = usernamePrefix.toLowerCase();
+//        if (prefix.isEmpty()) {
+//            return List.of("Enter a username");
+//        }
+//
+//        String firstLetter = prefix.substring(0, 1);
+//        List<String> usernames = usernameDatabase.getOrDefault(firstLetter, List.of());
+//
+//        return usernames.stream().filter(username -> username.toLowerCase().startsWith(prefix)).toList();
+//    }
+//
+//    @McpComplete(prompt = "personalized-message")
+//    public List<String> completeName(String name) {
+//        String prefix = name.toLowerCase();
+//        if (prefix.isEmpty()) {
+//            return List.of("Enter a username");
+//        }
+//
+//        String firstLetter = prefix.substring(0, 1);
+//        List<String> usernames = usernameDatabase.getOrDefault(firstLetter, List.of());
+//
+//        return usernames.stream().filter(username -> username.toLowerCase().startsWith(prefix)).toList();
+//    }
+//
+//    /**
+//     * Complete method for country names in a travel prompt.
+//     */
+//    @McpComplete(prompt = "travel-planner")
+//    public CompleteResult completeCountryName(CompleteRequest request) {
+//        String prefix = request.argument().value().toLowerCase();
+//        if (prefix.isEmpty()) {
+//            return new CompleteResult(new CompleteCompletion(List.of("Enter a country name"), 1, false));
+//        }
+//
+//        String firstLetter = prefix.substring(0, 1);
+//        List<String> countries = countryDatabase.getOrDefault(firstLetter, List.of());
+//
+//        List<String> matches = countries.stream()
+//                .filter(country -> country.toLowerCase().startsWith(prefix))
+//                .toList();
+//
+//        return new CompleteResult(new CompleteCompletion(matches, matches.size(), false));
+//    }
 }

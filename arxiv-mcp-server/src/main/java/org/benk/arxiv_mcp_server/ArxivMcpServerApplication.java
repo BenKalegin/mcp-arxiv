@@ -5,6 +5,7 @@ import io.modelcontextprotocol.server.McpServerFeatures;
 import org.benk.arxiv_mcp_server.mcp.ArxivTools;
 import org.benk.arxiv_mcp_server.mcp.ArxivPromptProvider;
 import org.benk.arxiv_mcp_server.mcp.ArxivResourceProvider;
+import org.benk.arxiv_mcp_server.mcp.AutocompleteProvider;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.boot.SpringApplication;

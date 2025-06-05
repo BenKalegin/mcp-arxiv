@@ -85,7 +85,7 @@ public class ArxivMcpController {
     }
 
     /**
-     * Get detailed information about papers on a specific topic in markdown format.
+     * Get detailed information about papers on a specific topic in Markdown format.
      *
      * @param topic The research topic to retrieve papers for
      * @return Markdown content with paper details
