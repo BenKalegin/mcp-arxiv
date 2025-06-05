@@ -29,17 +29,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ArxivServiceImpl implements ArxivService {
 
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final ArxivClient arxivClient;
 
-    @Value("${arxiv.papers.directory}")
-    private String papersDirectory;
+    private final String papersDirectory = "c:/temp/papers";
 
     @Override
     public List<String> searchPapers(String topic, int maxResults) {
         log.info("Searching for papers on topic: {} with max results: {}", topic, maxResults);
 
-        // Create directory for this topic
+        // Create a directory for this topic
         String topicDir = formatTopicDirectory(topic);
         Path path = Paths.get(papersDirectory, topicDir);
         try {

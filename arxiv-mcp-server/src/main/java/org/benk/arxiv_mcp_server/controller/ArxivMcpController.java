@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.http.ResponseEntity.notFound;
+import static org.springframework.http.ResponseEntity.ok;
+
 /**
  * Controller for arXiv API.
  */
@@ -33,7 +36,7 @@ public class ArxivMcpController {
             @RequestParam String topic,
             @RequestParam(required = false, defaultValue = "5") Integer maxResults) {
         log.info("Searching papers: topic={}, maxResults={}", topic, maxResults);
-        return ResponseEntity.ok(arxivService.searchPapers(topic, maxResults));
+        return ok(arxivService.searchPapers(topic, maxResults));
     }
 
     /**
@@ -47,9 +50,9 @@ public class ArxivMcpController {
         log.info("Extracting info for paper: {}", paperId);
         PaperInfo paperInfo = arxivService.extractPaperInfo(paperId);
         if (paperInfo != null) {
-            return ResponseEntity.ok(paperInfo);
+            return ok(paperInfo);
         }
-        return ResponseEntity.notFound().build();
+        return notFound().build();
     }
 
     /**
@@ -60,7 +63,7 @@ public class ArxivMcpController {
     @GetMapping("/folders")
     public ResponseEntity<List<String>> getAvailableFolders() {
         log.info("Getting available folders");
-        return ResponseEntity.ok(arxivService.getAvailableFolders());
+        return ok(arxivService.getAvailableFolders());
     }
 
     /**
@@ -75,10 +78,10 @@ public class ArxivMcpController {
         Map<String, PaperInfo> papersData = arxivService.getTopicPapers(topic);
 
         if (papersData.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return notFound().build();
         }
 
-        return ResponseEntity.ok(papersData);
+        return ok(papersData);
     }
 
     /**
@@ -93,7 +96,7 @@ public class ArxivMcpController {
         Map<String, PaperInfo> papersData = arxivService.getTopicPapers(topic);
 
         if (papersData.isEmpty()) {
-            return ResponseEntity.ok("# No papers found for topic: " + topic + "\n\nTry searching for papers on this topic first.");
+            return ok("# No papers found for topic: " + topic + "\n\nTry searching for papers on this topic first.");
         }
 
         StringBuilder content = new StringBuilder("# Papers on " + topic.replace("_", " ").toUpperCase() + "\n\n");
@@ -115,7 +118,7 @@ public class ArxivMcpController {
             content.append("---\n\n");
         }
 
-        return ResponseEntity.ok(content.toString());
+        return ok(content.toString());
     }
 
     /**
@@ -157,6 +160,6 @@ public class ArxivMcpController {
                 Please present both detailed information about each paper and a high-level synthesis of the research landscape in %s.
                 """, papers, topic, topic, papers, topic, topic, topic);
 
-        return ResponseEntity.ok(prompt);
+        return ok(prompt);
     }
 }
